@@ -8,8 +8,8 @@ import java.util.Optional;
 public class UserDAO {
     private Connection connection;
 
-    public UserDAO(Connection conn) {
-        this.connection = conn;
+    public UserDAO(Connection connection) {
+        this.connection = connection;
     }
 
     public void save(User user) throws SQLException {
@@ -29,6 +29,24 @@ public class UserDAO {
                 }
             }
         } else {
+            var sql = "UPDATE users SET username = ?, phone = ? WHERE id = ?";
+            try (var preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, user.getName());
+                preparedStatement.setString(2, user.getPhone());
+                preparedStatement.setLong(3, user.getId());
+                preparedStatement.executeUpdate();
+            }
+        }
+    }
+
+    public void delete(User user) throws SQLException {
+
+        if (user.getId() != null) {
+            var sql = "DELETE FROM users WHERE id = ?";
+            try (var preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setLong(1, user.getId());
+                preparedStatement.executeUpdate();
+            }
         }
     }
 
